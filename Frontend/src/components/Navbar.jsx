@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
+import { useChat } from "../context/ChatContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { unreadTotal } = useChat();
 
   // close dropdown on outside click
   useEffect(() => {
@@ -55,6 +57,14 @@ const Navbar = () => {
           </Link>
           <Link to="/myitems" className="navbar-link">
             My Items
+          </Link>
+          <Link to="/chats" className="relative navbar-link">
+            Chats
+            {unreadTotal > 0 && (
+              <span className="absolute -top-2 -right-4 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                {unreadTotal}
+              </span>
+            )}
           </Link>
           <Link to="/about" className="navbar-link">
             About

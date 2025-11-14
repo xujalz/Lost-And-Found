@@ -15,6 +15,8 @@ import AboutUs from "./pages/AboutUs";
 import EditItem from "./pages/EditItem";
 
 import { useAuth } from "./context/AuthContext";
+import Chats from "./pages/Chats";
+import ChatWindow from "./pages/ChatWindow";
 
 const App = () => {
   const { user } = useAuth();
@@ -53,6 +55,14 @@ const App = () => {
           <Route path="/edit/:type/:id" element={<EditItem />} />
 
           <Route path="/about" element={<AboutUs />} />
+          <Route
+            path="/chats"
+            element={user ? <Chats /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/chat/:otherId"
+            element={user ? <ChatWindow /> : <Navigate to="/login" />}
+          />
         </Routes>
       </main>
       <Footer />
