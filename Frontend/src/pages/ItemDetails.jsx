@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 const ItemDetails = ({ type: routeType }) => {
   const { id } = useParams();
