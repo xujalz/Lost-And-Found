@@ -1,6 +1,5 @@
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
-import User from "../models/User.js";
 
 // Open or fetch existing chat between two users
 export const openChat = async (req, res) => {
