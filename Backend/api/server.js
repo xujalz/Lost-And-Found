@@ -4,17 +4,18 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import serverless from "serverless-http";
 
-import connectDB from "./config/db.js";
+import connectDB from "../config/db.js";
 
-import Chat from "./models/Chat.js";
-import Message from "./models/Message.js";
+import Chat from "../models/Chat.js";
+import Message from "../models/Message.js";
 
 // ROUTES
-import chatRoutes from "./routes/chatRoutes.js";
-import lostRoutes from "./routes/lostRoutes.js";
-import foundRoutes from "./routes/foundRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+import chatRoutes from "../routes/chatRoutes.js";
+import lostRoutes from "../routes/lostRoutes.js";
+import foundRoutes from "../routes/foundRoutes.js";
+import userRoutes from "../routes/userRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -181,7 +182,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
 // START SERVER
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
-);
+// const PORT = process.env.PORT || 5000;
+// server.listen(PORT, () =>
+//   console.log(`🚀 Server running on port ${PORT}`)
+// );
+
+module.exports = app;
+module.exports.handler = serverless(app);
