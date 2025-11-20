@@ -24,7 +24,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    // origin: process.env.CLIENT_URL,
+    origin: "https://lostandfound-sepia.vercel.app/",
     credentials: true,
   })
 );
@@ -37,7 +38,8 @@ const server = http.createServer(app);
 // SOCKET.IO SETUP
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    // origin: process.env.CLIENT_URL,
+    origin: "https://lostandfound-sepia.vercel.app/",
     methods: ["GET", "POST"],
     credentials: true,
   },
