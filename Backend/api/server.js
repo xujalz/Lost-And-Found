@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
-import serverless from "serverless-http";
 
 import connectDB from "../config/db.js";
 
@@ -24,9 +23,8 @@ const app = express();
 
 app.use(
   cors({
-    // origin: process.env.CLIENT_URL,
-    origin: "https://lostandfound-sepia.vercel.app/",
-    credentials: true,
+    origin: process.env.CLIENT_URL, // Set on Render
+    credentials: true
   })
 );
 
@@ -35,24 +33,22 @@ app.use(express.json());
 // HTTP SERVER
 const server = http.createServer(app);
 
-// SOCKET.IO SETUP
+// SOCKET.IO
 const io = new Server(server, {
   cors: {
-    // origin: process.env.CLIENT_URL,
-    origin: "https://lostandfound-sepia.vercel.app/",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"],
-    credentials: true,
-  },
+    credentials: true
+  }
 });
 
 // ONLINE USERS
 const onlineMap = new Map();
 
-// SOCKET.IO LOGIC
+// SOCKET HANDLER
 io.on("connection", (socket) => {
   console.log("⚡ User connected", socket.id);
 
-  // AUTH
   socket.on("authenticate", ({ token }) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -73,7 +69,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // SEND MESSAGE
   socket.on("sendMessage", async (payload, ack) => {
     try {
       const { chatId, to, content, type = "text", fileUrl = "" } = payload;
@@ -88,10 +83,9 @@ io.on("connection", (socket) => {
         content,
         type,
         fileUrl,
-        status: "sent",
+        status: "sent"
       });
 
-      // update chat
       const chat = await Chat.findById(chatId);
       const prev = chat.unreadCounts.get(to) || 0;
       chat.unreadCounts.set(to, prev + 1);
@@ -100,7 +94,7 @@ io.on("connection", (socket) => {
         sender: from,
         createdAt: msg.createdAt,
         type,
-        fileUrl,
+        fileUrl
       };
       await chat.save();
 
@@ -108,14 +102,13 @@ io.on("connection", (socket) => {
 
       io.to(String(to)).emit("newMessage", { ...msg.toObject(), chatId });
 
-      // delivered
       if (onlineMap.has(String(to))) {
         msg.status = "delivered";
         await msg.save();
 
         io.to(socket.id).emit("messageStatus", {
           messageId: msg._id,
-          status: "delivered",
+          status: "delivered"
         });
       }
     } catch (err) {
@@ -124,7 +117,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // RECEIVED
   socket.on("messageReceived", async ({ messageId }) => {
     const msg = await Message.findById(messageId);
     if (!msg) return;
@@ -138,7 +130,6 @@ io.on("connection", (socket) => {
     );
   });
 
-  // MARK READ
   socket.on("markRead", async ({ chatId }) => {
     const me = socket.userId;
 
@@ -158,7 +149,6 @@ io.on("connection", (socket) => {
     });
   });
 
-  // DISCONNECT
   socket.on("disconnect", () => {
     const userId = socket.userId;
     if (!userId) return;
@@ -183,11 +173,8 @@ app.use("/api/found", foundRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
-// START SERVER
-// const PORT = process.env.PORT || 5000;
-// server.listen(PORT, () =>
-//   console.log(`🚀 Server running on port ${PORT}`)
-// );
+// RENDER SERVER START
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-module.exports = app;
-module.exports.handler = serverless(app);
+export default app;
